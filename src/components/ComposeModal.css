@@ -1,0 +1,495 @@
+/* Compose Modal Overlay */
+.compose-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  overflow-y: auto;
+  backdrop-filter: blur(2px);
+}
+
+/* Compose Modal */
+.compose-modal {
+  background-color: #000;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  margin-top: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Modal Header */
+.compose-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #2f3336;
+  position: sticky;
+  top: 0;
+  background-color: #000;
+  z-index: 10;
+}
+
+.compose-modal-close {
+  background: none;
+  border: none;
+  color: #e7e9ea;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.compose-modal-close:hover {
+  background-color: rgba(231, 233, 234, 0.1);
+}
+
+.compose-modal-drafts {
+  background: none;
+  border: none;
+  color: #1d9bf0;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 700;
+  transition: background-color 0.2s;
+}
+
+.compose-modal-drafts:hover:not(:disabled) {
+  background-color: rgba(29, 155, 240, 0.1);
+}
+
+.compose-modal-drafts:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Modal Body */
+.compose-modal-body {
+  padding: 0;
+}
+
+.compose-modal-content {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+}
+
+.compose-modal-profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.compose-modal-input-container {
+  flex: 1;
+  min-width: 0;
+}
+
+.compose-modal-input {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #e7e9ea;
+  font-size: 20px;
+  line-height: 24px;
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  min-height: 120px;
+  max-height: 300px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.compose-modal-input::placeholder {
+  color: #71767b;
+}
+
+/* Media Preview */
+.compose-modal-media-preview {
+  margin: 12px 0;
+}
+
+.compose-modal-media-grid {
+  display: grid;
+  gap: 2px;
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.compose-modal-media-grid.single {
+  grid-template-columns: 1fr;
+}
+
+.compose-modal-media-grid.double {
+  grid-template-columns: 1fr 1fr;
+}
+
+.compose-modal-media-grid.multiple {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.compose-modal-media-item {
+  position: relative;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+
+.compose-modal-preview-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.compose-modal-remove-media {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.compose-modal-remove-media:hover {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+/* GIF Preview */
+.compose-modal-gif-preview {
+  margin: 12px 0;
+}
+
+.compose-modal-gif-item {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.compose-modal-preview-gif {
+  max-width: 100%;
+  border-radius: 12px;
+}
+
+.compose-modal-remove-gif {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.compose-modal-remove-gif:hover {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+/* Poll Creator */
+.compose-modal-poll-creator {
+  margin: 12px 0;
+  padding: 16px;
+  background-color: #1d1f23;
+  border-radius: 12px;
+}
+
+/* Audience Selector */
+.compose-modal-audience {
+  margin: 12px 0;
+  padding-top: 12px;
+  border-top: 1px solid #2f3336;
+}
+
+.compose-modal-audience-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px solid #1d9bf0;
+  color: #1d9bf0;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.compose-modal-audience-btn:hover {
+  background-color: rgba(29, 155, 240, 0.1);
+}
+
+/* Action Icons */
+.compose-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #2f3336;
+}
+
+.compose-modal-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.compose-modal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  color: #1d9bf0;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  padding: 0;
+}
+
+.compose-modal-icon:hover:not(:disabled) {
+  background-color: rgba(29, 155, 240, 0.1);
+}
+
+.compose-modal-icon:disabled {
+  color: #71767b;
+  cursor: not-allowed;
+}
+
+.compose-modal-icon:disabled:hover {
+  background-color: transparent;
+}
+
+.compose-modal-icon svg {
+  fill: currentColor;
+}
+
+/* Post Controls */
+.compose-modal-post-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.compose-modal-character-count-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.compose-modal-character-progress {
+  width: 20px;
+  height: 20px;
+  transform: rotate(-90deg);
+}
+
+.compose-modal-character-count {
+  position: absolute;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.compose-modal-post-btn {
+  background-color: #71767b;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 70px;
+  height: 36px;
+  justify-content: center;
+  opacity: 0.5;
+}
+
+.compose-modal-post-btn.active {
+  background-color: #1d9bf0;
+  opacity: 1;
+}
+
+.compose-modal-post-btn.active:hover:not(:disabled) {
+  background-color: #1a8cd8;
+}
+
+.compose-modal-post-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.compose-modal-posting-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Emoji Picker */
+.compose-modal-emoji-picker {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  z-index: 1001;
+  margin-bottom: 8px;
+  background: #23272c;
+  padding: 10px 4px 6px 4px;
+  border-radius: 16px;
+  border: 1.5px solid #444;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .compose-modal {
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+    height: 100vh;
+    width: 100%;
+  }
+  
+  .compose-modal-overlay {
+    padding: 0;
+    align-items: flex-start;
+  }
+  
+  .compose-modal-header {
+    padding: 12px 16px;
+  }
+  
+  .compose-modal-close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .compose-modal-content {
+    padding: 12px 16px;
+  }
+  
+  .compose-modal-profile-pic {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .compose-modal-input {
+    font-size: 18px;
+    min-height: 100px;
+  }
+  
+  .compose-modal-actions {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .compose-modal-icon {
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px;
+    height: 44px;
+  }
+  
+  .compose-modal-post-btn {
+    min-width: 70px;
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .compose-modal-header {
+    padding: 10px 12px;
+  }
+  
+  .compose-modal-content {
+    padding: 10px 12px;
+  }
+  
+  .compose-modal-profile-pic {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .compose-modal-input {
+    font-size: 16px;
+  }
+  
+  .compose-modal-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+  
+  .compose-modal-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .compose-modal-post-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+

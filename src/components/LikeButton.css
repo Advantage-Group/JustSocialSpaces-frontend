@@ -1,0 +1,168 @@
+/* Twitter-style Like Button with Animations */
+.like-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #71767b;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  min-width: 40px;
+  justify-content: center;
+  position: relative;
+  overflow: visible;
+}
+
+.like-button:hover {
+  color: #f91880;
+  background-color: rgba(249, 24, 128, 0.1);
+}
+
+.like-button.liked {
+  color: #f91880;
+}
+
+.like-button-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+}
+
+.like-icon {
+  width: 18.75px;
+  height: 18.75px;
+  transition: all 0.2s ease;
+  transform-origin: center;
+}
+
+/* Heart fill animation */
+.like-button.liked .like-icon {
+  fill: #f91880;
+  color: #f91880;
+}
+
+/* Scale bounce animation on click */
+.like-button.animating .like-icon {
+  animation: heartBeat 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(1.2);
+  }
+  30% {
+    transform: scale(0.95);
+  }
+  45% {
+    transform: scale(1.1);
+  }
+  60% {
+    transform: scale(0.98);
+  }
+  75% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Particle effects */
+.like-particle {
+  position: fixed;
+  pointer-events: none;
+  font-size: 16px;
+  animation: particleFloat 1s ease-out forwards;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes particleFloat {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+        calc(-50% + var(--end-x)),
+        calc(-50% + var(--end-y))
+      ) scale(1.2) rotate(360deg);
+  }
+}
+
+/* Like count styling */
+.like-count {
+  font-size: 13px;
+  color: inherit;
+  transition: color 0.2s ease;
+  min-width: 16px;
+  text-align: center;
+}
+
+.like-button.liked .like-count {
+  color: #f91880;
+}
+
+/* Disabled state */
+.like-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Ripple effect on click */
+.like-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(249, 24, 128, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.like-button.animating::before {
+  width: 40px;
+  height: 40px;
+  animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.6;
+  }
+  100% {
+    width: 60px;
+    height: 60px;
+    opacity: 0;
+  }
+}
+
+/* Smooth color transition */
+.like-button .like-icon path {
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+/* Hover effect for non-liked state */
+.like-button:not(.liked):hover .like-icon {
+  color: #f91880;
+  transform: scale(1.1);
+}
+

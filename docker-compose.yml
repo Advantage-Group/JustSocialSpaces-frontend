@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: twitterspaces-frontend
+    ports:
+      - "3000:80" # host:container
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
