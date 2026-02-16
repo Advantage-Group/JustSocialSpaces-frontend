@@ -37,12 +37,15 @@
   flex-shrink: 0;
   align-self: flex-start;
   /* Hide scrollbar but keep scrolling */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
 }
 
 .left-sidebar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
 /* Main Content Area - Original Twitter/X Style */
@@ -56,12 +59,22 @@
   overflow-x: hidden;
   flex-shrink: 0;
   /* Hide scrollbar but keep scrolling */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
 }
 
 .main-content::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
+  /* Chrome, Safari, Opera */
+}
+
+/* Full width for Messages page */
+.main-content.full-width {
+  width: 990px;
+  max-width: 990px;
+  flex: 1;
 }
 
 /* Mobile: Make main content full width */
@@ -85,12 +98,15 @@
   flex-shrink: 0;
   align-self: flex-start;
   /* Hide scrollbar but keep scrolling */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
 }
 
 .right-sidebar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
 /* Collapsed Sidebar Styles */
@@ -216,11 +232,11 @@
   .right-sidebar {
     display: none;
   }
-  
+
   .main-content {
     border-right: none;
   }
-  
+
   .layout-container {
     max-width: 875px;
   }
@@ -234,12 +250,12 @@
     z-index: 1500;
     background-color: #000;
   }
-  
+
   .left-sidebar.collapsed {
     left: 0;
     width: 275px;
   }
-  
+
   .main-content {
     border-left: none;
     border-right: none;
@@ -248,12 +264,12 @@
     max-width: 100%;
     padding: 0;
   }
-  
+
   .layout-container {
     max-width: 100%;
     padding: 0;
   }
-  
+
   .mobile-sidebar-toggle {
     display: block;
   }
@@ -263,7 +279,7 @@
   .main-content {
     padding: 0;
   }
-  
+
   .notification {
     right: 10px;
     left: 10px;
@@ -311,7 +327,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Accessibility */
@@ -329,11 +347,11 @@
   .main-layout {
     border: 1px solid;
   }
-  
+
   .nav-item {
     border: 1px solid transparent;
   }
-  
+
   .nav-item:hover,
   .nav-item.active {
     border-color: currentColor;
@@ -342,12 +360,13 @@
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
+
   .nav-item,
   .left-sidebar,
   .mobile-sidebar-toggle {
     transition: none;
   }
-  
+
   .loading-spinner {
     animation: none;
   }
@@ -430,13 +449,15 @@
   .mobile-bottom-nav {
     display: flex;
   }
-  
+
   .main-content {
-    padding-bottom: 70px; /* Space for bottom nav */
+    padding-bottom: 70px;
+    /* Space for bottom nav */
   }
-  
+
   .home-page {
-    padding-bottom: 70px; /* Space for bottom nav */
+    padding-bottom: 70px;
+    /* Space for bottom nav */
   }
 }
 
@@ -446,22 +467,22 @@
     padding: 6px 8px;
     min-height: 56px;
   }
-  
+
   .mobile-nav-icon {
     width: 22px;
     height: 22px;
   }
-  
+
   .mobile-nav-badge {
     font-size: 9px;
     padding: 1px 4px;
     min-width: 16px;
   }
-  
+
   .main-content {
     padding-bottom: 65px;
   }
-  
+
   .home-page {
     padding-bottom: 65px;
   }
