@@ -77,7 +77,7 @@ const Messages = () => {
           // Check if message already exists
           const exists = prev.some(msg => msg.id === data.message.id);
           if (exists) return prev;
-          return [...prev, { ...data.message, isOwn: data.message.sender.id === state.user?._id }];
+          return [...prev, { ...data.message, isOwn: (data.message.sender?.id || data.message.sender?._id) === state.user?._id }];
         });
       }
 
@@ -115,7 +115,11 @@ const Messages = () => {
           // Get messages from WebSocket
           socketRef.current.emit('messages:get', { conversationId: selectedConversation.id }, (response) => {
             if (response?.ok) {
-              setMessages(response.messages || []);
+              const messagesWithOwn = (response.messages || []).map(msg => ({
+                ...msg,
+                isOwn: (msg.sender?.id || msg.sender?._id) === state.user?._id
+              }));
+              setMessages(messagesWithOwn);
               setTimeout(() => scrollToBottom(), 100);
             } else {
               // Fallback to REST API
@@ -191,7 +195,11 @@ const Messages = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setMessages(data.messages || []);
+        const messagesWithOwn = (data.messages || []).map(msg => ({
+          ...msg,
+          isOwn: msg.sender?.id === state.user?._id || msg.sender?._id === state.user?._id
+        }));
+        setMessages(messagesWithOwn);
         // Scroll to bottom after messages load
         setTimeout(() => scrollToBottom(), 100);
       } else {
@@ -404,7 +412,8 @@ const Messages = () => {
           photo: state.user?.photo
         },
         createdAt: new Date().toISOString(),
-        status: 'sending'
+        status: 'sending',
+        isOwn: true
       };
 
       setMessages(prev => [...prev, newMessage]);
