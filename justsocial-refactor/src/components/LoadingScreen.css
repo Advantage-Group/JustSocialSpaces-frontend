@@ -1,0 +1,29 @@
+.loading-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #000;
+}
+
+.x-logo {
+  color: #fff;
+  font-size: 80px;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  letter-spacing: 2px;
+}
+
+.twitter-spinner {
+  border: 6px solid rgba(29,161,242,0.2);
+  border-top: 6px solid #1da1f2;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}

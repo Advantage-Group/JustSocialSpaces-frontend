@@ -1,0 +1,59 @@
+.profile-dropdown {
+  position: relative;
+  display: inline-block;
+  z-index: 2000; /* ensure over sidebar */
+}
+
+.profile-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dots {
+  font-weight: bold;
+}
+
+.dropdown-menu {
+  position: absolute;
+  bottom: 40px; /* show above the button */
+  right: 0; /* anchor to right edge to avoid clipping */
+  left: auto;
+  transform: translateY(-8px);
+  background: #0f1419;
+  color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  min-width: 260px;
+  z-index: 100;
+  padding: 12px 0;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.dropdown-item {
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.dropdown-item:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* small arrow under the menu */
+.dropdown-menu::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  right: 16px; /* point arrow near the dots */
+  transform: rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: #0f1419;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}

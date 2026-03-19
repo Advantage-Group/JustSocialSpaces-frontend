@@ -1,30 +1,35 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useApp } from '../context/AppContext';
-import { ActionTypes } from '../context/AppContext';
-import SpacesModal from '../components/SpacesModal';
-import JitsiMeeting from '../components/JitsiMeeting';
-import GifPicker from '../components/GifPicker';
-import PollDisplay from '../components/PollDisplay';
-import CommentModal from '../components/CommentModal';
-import PostDetailModal from '../components/PostDetailModal';
-import ShareModal from '../components/ShareModal';
-import LikeButton from '../components/LikeButton';
-import './Home.css';
-import Picker from '@emoji-mart/react';
-import emojiData from '@emoji-mart/data';
+import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { useApp } from "../context/AppContext";
+import { ActionTypes } from "../context/AppContext";
+import SpacesModal from "../components/SpacesModal";
+import JitsiMeeting from "../components/JitsiMeeting";
+import GifPicker from "../components/GifPicker";
+import PollDisplay from "../components/PollDisplay";
+import CommentModal from "../components/CommentModal";
+import PostDetailModal from "../components/PostDetailModal";
+import ShareModal from "../components/ShareModal";
+import LikeButton from "../components/LikeButton";
+import "./Home.css";
+import Picker from "@emoji-mart/react";
+import emojiData from "@emoji-mart/data";
+import config from "../config.js";
 
 const Home = () => {
   const navigate = useNavigate();
   const { state, dispatch, showNotification } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [newPost, setNewPost] = useState('');
-  const [activeTab, setActiveTab] = useState('for-you');
+  const [newPost, setNewPost] = useState("");
+  const [activeTab, setActiveTab] = useState("for-you");
   const [isPosting, setIsPosting] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState([]);
   const [showPoll, setShowPoll] = useState(false);
-  const [pollOptions, setPollOptions] = useState(['', '']);
-  const [pollDuration, setPollDuration] = useState({ days: 1, hours: 0, minutes: 0 });
+  const [pollOptions, setPollOptions] = useState(["", ""]);
+  const [pollDuration, setPollDuration] = useState({
+    days: 1,
+    hours: 0,
+    minutes: 0,
+  });
   const [showComposeEmojiPicker, setShowComposeEmojiPicker] = useState(false);
   const emojiPickerRef = useRef(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -34,14 +39,15 @@ const Home = () => {
   const [selectedGif, setSelectedGif] = useState(null);
   const [openMenuPostId, setOpenMenuPostId] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
-  const [editText, setEditText] = useState('');
+  const [editText, setEditText] = useState("");
   const [editRemoveKeys, setEditRemoveKeys] = useState([]);
   const [editNewFiles, setEditNewFiles] = useState([]);
   const [editRemoveGif, setEditRemoveGif] = useState(false);
   const [editNewGif, setEditNewGif] = useState(null);
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [selectedPostForComment, setSelectedPostForComment] = useState(null);
-  const [showReactionPickerPostId, setShowReactionPickerPostId] = useState(null);
+  const [showReactionPickerPostId, setShowReactionPickerPostId] =
+    useState(null);
   const [reactionLoadingPostId, setReactionLoadingPostId] = useState(null);
   const [showPostDetailModal, setShowPostDetailModal] = useState(false);
   const [selectedPostForDetail, setSelectedPostForDetail] = useState(null);
@@ -58,27 +64,27 @@ const Home = () => {
   // Update following list when user data changes
   useEffect(() => {
     if (state.user?.following) {
-      setFollowingList(state.user.following.map(id => id.toString()));
+      setFollowingList(state.user.following.map((id) => id.toString()));
     }
   }, [state.user?.following]);
 
   const fetchFollowingList = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/auth/profile', {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${config.API_BASE_URL}/auth/profile`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
         const userData = await response.json();
         if (userData.following) {
-          setFollowingList(userData.following.map(id => id.toString()));
+          setFollowingList(userData.following.map((id) => id.toString()));
         }
       }
     } catch (error) {
-      console.error('Error fetching following list:', error);
+      console.error("Error fetching following list:", error);
     }
   };
 
@@ -86,44 +92,57 @@ const Home = () => {
   useEffect(() => {
     const handleProfilePhotoUpdate = (event) => {
       const { userId, photoUrl } = event.detail;
-      console.log('Home: Profile photo updated event received', { userId, photoUrl });
+      console.log("Home: Profile photo updated event received", {
+        userId,
+        photoUrl,
+      });
 
       // Update posts in state to reflect new profile photo
       if (state.posts && state.posts.length > 0) {
-        const updatedPosts = state.posts.map(post => {
-          if (post.author && (post.author._id === userId || post.author.id === userId)) {
+        const updatedPosts = state.posts.map((post) => {
+          if (
+            post.author &&
+            (post.author._id === userId || post.author.id === userId)
+          ) {
             return {
               ...post,
               author: {
                 ...post.author,
-                photo: photoUrl
-              }
+                photo: photoUrl,
+              },
             };
           }
           return post;
         });
-        console.log('Home: Updating posts with new profile photo', updatedPosts.length, 'posts');
+        console.log(
+          "Home: Updating posts with new profile photo",
+          updatedPosts.length,
+          "posts",
+        );
         dispatch({ type: ActionTypes.SET_POSTS, payload: updatedPosts });
       }
       // Also refresh posts from server to get latest data
       setTimeout(() => {
-        console.log('Home: Refreshing posts from server...');
+        console.log("Home: Refreshing posts from server...");
         fetchPosts();
       }, 500);
     };
 
-    window.addEventListener('profilePhotoUpdated', handleProfilePhotoUpdate);
+    window.addEventListener("profilePhotoUpdated", handleProfilePhotoUpdate);
     return () => {
-      window.removeEventListener('profilePhotoUpdated', handleProfilePhotoUpdate);
+      window.removeEventListener(
+        "profilePhotoUpdated",
+        handleProfilePhotoUpdate,
+      );
     };
   }, [state.posts]);
 
   // Handle postId from URL query parameter (for navigation from notifications)
   useEffect(() => {
-    const postId = searchParams.get('postId');
+    const postId = searchParams.get("postId");
     if (postId && !state.loading) {
       // First, check if post is already in the posts list
-      const existingPost = state.posts.find(p => p._id === postId);
+      const existingPost = state.posts.find((p) => p._id === postId);
       if (existingPost) {
         setSelectedPostForDetail(existingPost);
         setShowPostDetailModal(true);
@@ -138,11 +157,11 @@ const Home = () => {
 
   const fetchPostById = async (postId) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/posts/${postId}`, {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${config.API_BASE_URL}/posts/${postId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
@@ -157,24 +176,28 @@ const Home = () => {
         // Clear the query parameter
         setSearchParams({});
       } else {
-        showNotification('Post not found', 'error');
+        showNotification("Post not found", "error");
         setSearchParams({});
       }
     } catch (error) {
-      console.error('Error fetching post:', error);
-      showNotification('Failed to load post', 'error');
+      console.error("Error fetching post:", error);
+      showNotification("Failed to load post", "error");
       setSearchParams({});
     }
   };
 
   useEffect(() => {
     const onClickOutside = (e) => {
-      if (showComposeEmojiPicker && emojiPickerRef.current && !emojiPickerRef.current.contains(e.target)) {
+      if (
+        showComposeEmojiPicker &&
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(e.target)
+      ) {
         setShowComposeEmojiPicker(false);
       }
     };
-    document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
   }, [showComposeEmojiPicker]);
 
   // Track viewport size for responsive emoji picker placement
@@ -182,8 +205,8 @@ const Home = () => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 600);
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Listen for space open events from notifications
@@ -194,40 +217,45 @@ const Home = () => {
         const spaceId = event.detail.id || event.detail._id;
         if (spaceId) {
           try {
-            const token = localStorage.getItem('token');
-            console.log('🔄 Fetching fresh space data for spaceId:', spaceId);
-            const response = await fetch(`http://localhost:5000/api/spaces/${spaceId}`, {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            });
+            const token = localStorage.getItem("token");
+            console.log("🔄 Fetching fresh space data for spaceId:", spaceId);
+            const response = await fetch(
+              `${config.API_BASE_URL}/spaces/${spaceId}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            );
 
             if (response.ok) {
               const data = await response.json();
-              console.log('✅ Fresh space data fetched:', {
+              console.log("✅ Fresh space data fetched:", {
                 spaceId: data.space.id,
                 jitsiRoomName: data.space.jitsiRoomName,
-                jitsiDomain: data.space.jitsiDomain
+                jitsiDomain: data.space.jitsiDomain,
               });
               setCurrentSpace(data.space);
             } else {
-              console.warn('⚠️ Failed to fetch fresh space data, using provided data');
+              console.warn(
+                "⚠️ Failed to fetch fresh space data, using provided data",
+              );
               setCurrentSpace(event.detail);
             }
           } catch (error) {
-            console.error('❌ Error fetching fresh space data:', error);
-            console.warn('⚠️ Using provided space data as fallback');
+            console.error("❌ Error fetching fresh space data:", error);
+            console.warn("⚠️ Using provided space data as fallback");
             setCurrentSpace(event.detail);
           }
         } else {
           setCurrentSpace(event.detail);
         }
-        localStorage.removeItem('openSpace');
+        localStorage.removeItem("openSpace");
       }
     };
 
     // Check localStorage for space to open (from notification click)
-    const openSpaceData = localStorage.getItem('openSpace');
+    const openSpaceData = localStorage.getItem("openSpace");
     if (openSpaceData) {
       try {
         const spaceData = JSON.parse(openSpaceData);
@@ -235,67 +263,74 @@ const Home = () => {
 
         // Fetch fresh space data from API
         if (spaceId) {
-          const token = localStorage.getItem('token');
-          fetch(`http://localhost:5000/api/spaces/${spaceId}`, {
+          const token = localStorage.getItem("token");
+          fetch(`${config.API_BASE_URL}/spaces/${spaceId}`, {
             headers: {
-              'Authorization': `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           })
-            .then(response => {
+            .then((response) => {
               if (response.ok) {
                 return response.json();
               }
-              throw new Error('Failed to fetch space');
+              throw new Error("Failed to fetch space");
             })
-            .then(data => {
-              console.log('✅ Fresh space data fetched from localStorage:', {
+            .then((data) => {
+              console.log("✅ Fresh space data fetched from localStorage:", {
                 spaceId: data.space.id,
                 jitsiRoomName: data.space.jitsiRoomName,
-                jitsiDomain: data.space.jitsiDomain
+                jitsiDomain: data.space.jitsiDomain,
               });
               setCurrentSpace(data.space);
             })
-            .catch(error => {
-              console.error('❌ Error fetching fresh space data:', error);
-              console.warn('⚠️ Using localStorage space data as fallback');
+            .catch((error) => {
+              console.error("❌ Error fetching fresh space data:", error);
+              console.warn("⚠️ Using localStorage space data as fallback");
               setCurrentSpace(spaceData);
             });
         } else {
           setCurrentSpace(spaceData);
         }
-        localStorage.removeItem('openSpace');
+        localStorage.removeItem("openSpace");
       } catch (error) {
-        console.error('❌ Error parsing space data:', error);
+        console.error("❌ Error parsing space data:", error);
       }
     }
 
-    window.addEventListener('openSpace', handleOpenSpace);
-    return () => window.removeEventListener('openSpace', handleOpenSpace);
+    window.addEventListener("openSpace", handleOpenSpace);
+    return () => window.removeEventListener("openSpace", handleOpenSpace);
   }, []);
 
   const fetchPosts = async () => {
     try {
       dispatch({ type: ActionTypes.SET_LOADING, payload: true });
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/posts', {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${config.API_BASE_URL}/posts`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        cache: 'no-cache' // Prevent browser caching
+        cache: "no-cache", // Prevent browser caching
       });
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Home: Fetched posts from server:', data.posts?.length, 'posts');
+        console.log(
+          "Home: Fetched posts from server:",
+          data.posts?.length,
+          "posts",
+        );
         // Log first post author photo for debugging
         if (data.posts && data.posts.length > 0) {
-          console.log('Home: First post author photo:', data.posts[0].author?.photo);
+          console.log(
+            "Home: First post author photo:",
+            data.posts[0].author?.photo,
+          );
         }
         dispatch({ type: ActionTypes.SET_POSTS, payload: data.posts || [] });
       }
     } catch (error) {
-      console.error('Error fetching posts:', error);
-      showNotification('Failed to load posts', 'error');
+      console.error("Error fetching posts:", error);
+      showNotification("Failed to load posts", "error");
     } finally {
       dispatch({ type: ActionTypes.SET_LOADING, payload: false });
     }
@@ -310,48 +345,63 @@ const Home = () => {
   };
 
   const handlePost = async () => {
-    if ((!newPost.trim() && selectedMedia.length === 0 && !selectedGif) || isPosting) return;
+    if (
+      (!newPost.trim() && selectedMedia.length === 0 && !selectedGif) ||
+      isPosting
+    )
+      return;
 
     setIsPosting(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
       const formData = new FormData();
-      formData.append('content', newPost.trim());
+      formData.append("content", newPost.trim());
 
       // Add media files if any
       selectedMedia.forEach((media, index) => {
-        formData.append('media', media);
+        formData.append("media", media);
       });
 
       // Add GIF if selected
       if (selectedGif) {
-        formData.append('gif', JSON.stringify({
-          url: selectedGif.images.original.url,
-          title: selectedGif.title,
-          id: selectedGif.id,
-          source: 'giphy'
-        }));
+        formData.append(
+          "gif",
+          JSON.stringify({
+            url: selectedGif.images.original.url,
+            title: selectedGif.title,
+            id: selectedGif.id,
+            source: "giphy",
+          }),
+        );
       }
 
       // Add poll if exists
-      if (showPoll && pollOptions.some(option => option.trim())) {
-        const totalMinutes = (pollDuration.days * 24 * 60) + (pollDuration.hours * 60) + pollDuration.minutes;
-        formData.append('poll', JSON.stringify({
-          question: newPost.trim() || 'Poll Question',
-          choices: pollOptions.filter(option => option.trim()).map(option => ({ text: option.trim() })),
-          duration: totalMinutes
-        }));
+      if (showPoll && pollOptions.some((option) => option.trim())) {
+        const totalMinutes =
+          pollDuration.days * 24 * 60 +
+          pollDuration.hours * 60 +
+          pollDuration.minutes;
+        formData.append(
+          "poll",
+          JSON.stringify({
+            question: newPost.trim() || "Poll Question",
+            choices: pollOptions
+              .filter((option) => option.trim())
+              .map((option) => ({ text: option.trim() })),
+            duration: totalMinutes,
+          }),
+        );
         // Clear post content when creating a poll to avoid duplication
-        formData.set('content', '');
+        formData.set("content", "");
       }
 
-      const response = await fetch('http://localhost:5000/api/posts', {
-        method: 'POST',
+      const response = await fetch(`${config.API_BASE_URL}/posts`, {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: formData
+        body: formData,
       });
 
       if (response.ok) {
@@ -359,22 +409,22 @@ const Home = () => {
         dispatch({ type: ActionTypes.ADD_POST, payload: data.post });
 
         // Reset form
-        setNewPost('');
+        setNewPost("");
         setSelectedMedia([]);
         setSelectedGif(null);
         setShowPoll(false);
-        setPollOptions(['', '']);
+        setPollOptions(["", ""]);
         setPollDuration({ days: 1, hours: 0, minutes: 0 });
         setIsExpanded(false);
 
-        showNotification('Your post was sent!', 'success');
+        showNotification("Your post was sent!", "success");
       } else {
         const errorData = await response.json();
-        showNotification(errorData.error || 'Failed to create post', 'error');
+        showNotification(errorData.error || "Failed to create post", "error");
       }
     } catch (error) {
-      console.error('Error creating post:', error);
-      showNotification('Something went wrong. Please try again.', 'error');
+      console.error("Error creating post:", error);
+      showNotification("Something went wrong. Please try again.", "error");
     } finally {
       setIsPosting(false);
     }
@@ -385,51 +435,59 @@ const Home = () => {
     const maxMedia = 4;
 
     if (selectedMedia.length + files.length > maxMedia) {
-      showNotification(`You can only upload up to ${maxMedia} media files`, 'error');
+      showNotification(
+        `You can only upload up to ${maxMedia} media files`,
+        "error",
+      );
       return;
     }
 
-    const validFiles = files.filter(file => {
-      const isValidType = file.type.startsWith('image/') || file.type.startsWith('video/');
-      const maxSize = file.type.startsWith('video/') ? 50 * 1024 * 1024 : 5 * 1024 * 1024; // 50MB for videos, 5MB for images
+    const validFiles = files.filter((file) => {
+      const isValidType =
+        file.type.startsWith("image/") || file.type.startsWith("video/");
+      const maxSize = file.type.startsWith("video/")
+        ? 50 * 1024 * 1024
+        : 5 * 1024 * 1024; // 50MB for videos, 5MB for images
       const isValidSize = file.size <= maxSize;
 
       if (!isValidType) {
-        showNotification('Please select only image or video files', 'error');
+        showNotification("Please select only image or video files", "error");
         return false;
       }
 
       if (!isValidSize) {
-        const sizeLimit = file.type.startsWith('video/') ? '50MB' : '5MB';
-        showNotification(`File size should be less than ${sizeLimit}`, 'error');
+        const sizeLimit = file.type.startsWith("video/") ? "50MB" : "5MB";
+        showNotification(`File size should be less than ${sizeLimit}`, "error");
         return false;
       }
 
       return true;
     });
 
-    setSelectedMedia(prev => [...prev, ...validFiles]);
+    setSelectedMedia((prev) => [...prev, ...validFiles]);
     setIsExpanded(true);
   };
 
   const removeMedia = (index) => {
-    setSelectedMedia(prev => prev.filter((_, i) => i !== index));
+    setSelectedMedia((prev) => prev.filter((_, i) => i !== index));
   };
 
   const addPollOption = () => {
     if (pollOptions.length < 4) {
-      setPollOptions(prev => [...prev, '']);
+      setPollOptions((prev) => [...prev, ""]);
     }
   };
 
   const removePollOption = (index) => {
     if (pollOptions.length > 2) {
-      setPollOptions(prev => prev.filter((_, i) => i !== index));
+      setPollOptions((prev) => prev.filter((_, i) => i !== index));
     }
   };
 
   const updatePollOption = (index, value) => {
-    setPollOptions(prev => prev.map((option, i) => i === index ? value : option));
+    setPollOptions((prev) =>
+      prev.map((option, i) => (i === index ? value : option)),
+    );
   };
 
   const togglePoll = () => {
@@ -465,38 +523,38 @@ const Home = () => {
 
   const getCharacterCountColor = () => {
     const count = getCharacterCount();
-    if (count > 260) return '#f4245e'; // Red
-    if (count > 240) return '#ffd400'; // Yellow
-    return '#71767b'; // Gray
+    if (count > 260) return "#f4245e"; // Red
+    if (count > 240) return "#ffd400"; // Yellow
+    return "#71767b"; // Gray
   };
 
   const handleEmojiSelect = (emoji) => {
-    const native = emoji?.native || '';
+    const native = emoji?.native || "";
     if (!native) return;
-    setNewPost(prev => `${prev}${native}`);
+    setNewPost((prev) => `${prev}${native}`);
     setIsExpanded(true);
   };
 
   const togglePostMenu = (postId) => {
-    setOpenMenuPostId(prev => prev === postId ? null : postId);
+    setOpenMenuPostId((prev) => (prev === postId ? null : postId));
   };
 
   const handleDeletePost = async (postId) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/posts/${postId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${config.API_BASE_URL}/posts/${postId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
         dispatch({ type: ActionTypes.REMOVE_POST, payload: postId });
-        showNotification('Post deleted', 'success');
+        showNotification("Post deleted", "success");
       } else {
         const err = await response.json().catch(() => ({}));
-        showNotification(err.error || 'Failed to delete post', 'error');
+        showNotification(err.error || "Failed to delete post", "error");
       }
     } catch (e) {
-      showNotification('Failed to delete post', 'error');
+      showNotification("Failed to delete post", "error");
     } finally {
       setOpenMenuPostId(null);
     }
@@ -504,7 +562,7 @@ const Home = () => {
 
   const startEditPost = (post) => {
     setEditingPost(post);
-    setEditText(post.content || '');
+    setEditText(post.content || "");
     setEditRemoveKeys([]);
     setEditNewFiles([]);
     setEditRemoveGif(false);
@@ -516,49 +574,64 @@ const Home = () => {
     if (!editingPost) return;
     const content = editText.trim();
     if (content.length > 280) {
-      showNotification('Post exceeds 280 characters', 'error');
+      showNotification("Post exceeds 280 characters", "error");
       return;
     }
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const form = new FormData();
-      form.append('content', content);
-      if (editRemoveKeys.length > 0) form.append('removeMediaKeys', JSON.stringify(editRemoveKeys));
-      if (editRemoveGif) form.append('removeGif', 'true');
-      editNewFiles.forEach(f => form.append('media', f));
-      if (editNewGif) form.append('gif', JSON.stringify({ url: editNewGif.images.original.url, title: editNewGif.title, id: editNewGif.id, source: 'giphy' }));
-      const response = await fetch(`http://localhost:5000/api/posts/${editingPost._id}`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: form
-      });
+      form.append("content", content);
+      if (editRemoveKeys.length > 0)
+        form.append("removeMediaKeys", JSON.stringify(editRemoveKeys));
+      if (editRemoveGif) form.append("removeGif", "true");
+      editNewFiles.forEach((f) => form.append("media", f));
+      if (editNewGif)
+        form.append(
+          "gif",
+          JSON.stringify({
+            url: editNewGif.images.original.url,
+            title: editNewGif.title,
+            id: editNewGif.id,
+            source: "giphy",
+          }),
+        );
+      const response = await fetch(
+        `${config.API_BASE_URL}/posts/${editingPost._id}`,
+        {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+          body: form,
+        },
+      );
       if (response.ok) {
         const data = await response.json();
         dispatch({ type: ActionTypes.UPDATE_POST, payload: data.post });
-        showNotification('Post updated', 'success');
+        showNotification("Post updated", "success");
         setEditingPost(null);
-        setEditText('');
+        setEditText("");
         setEditRemoveKeys([]);
         setEditNewFiles([]);
         setEditRemoveGif(false);
         setEditNewGif(null);
       } else {
         const err = await response.json().catch(() => ({}));
-        showNotification(err.error || 'Failed to update post', 'error');
+        showNotification(err.error || "Failed to update post", "error");
       }
     } catch (e) {
-      showNotification('Failed to update post', 'error');
+      showNotification("Failed to update post", "error");
     }
   };
 
   const toggleRemoveMediaKey = (key) => {
-    setEditRemoveKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+    setEditRemoveKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+    );
   };
 
   const onEditFilesSelected = (e) => {
     const files = Array.from(e.target.files || []);
-    setEditNewFiles(prev => [...prev, ...files]);
-    e.target.value = '';
+    setEditNewFiles((prev) => [...prev, ...files]);
+    e.target.value = "";
   };
 
   const handleOpenCommentModal = (post) => {
@@ -577,7 +650,11 @@ const Home = () => {
   };
 
   const canPost = () => {
-    return (newPost.trim() || selectedMedia.length > 0 || selectedGif) && !isPosting && getCharacterCount() <= 280;
+    return (
+      (newPost.trim() || selectedMedia.length > 0 || selectedGif) &&
+      !isPosting &&
+      getCharacterCount() <= 280
+    );
   };
 
   const formatTimeAgo = (dateString) => {
@@ -594,18 +671,18 @@ const Home = () => {
   const handleAddOrChangeReaction = async (postId, emoji) => {
     setReactionLoadingPostId(postId);
     try {
-      const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5000/api/posts/${postId}/react`, {
-        method: 'POST',
+      const token = localStorage.getItem("token");
+      await fetch(`${config.API_BASE_URL}/posts/${postId}/react`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ emoji })
+        body: JSON.stringify({ emoji }),
       });
       await fetchPosts();
     } catch (e) {
-      showNotification('Failed to react. Try again.', 'error');
+      showNotification("Failed to react. Try again.", "error");
     } finally {
       setReactionLoadingPostId(null);
       setShowReactionPickerPostId(null);
@@ -615,14 +692,14 @@ const Home = () => {
   const handleRemoveReaction = async (postId) => {
     setReactionLoadingPostId(postId);
     try {
-      const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5000/api/posts/${postId}/react`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+      const token = localStorage.getItem("token");
+      await fetch(`${config.API_BASE_URL}/posts/${postId}/react`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       });
       await fetchPosts();
     } catch (e) {
-      showNotification('Failed to remove reaction.', 'error');
+      showNotification("Failed to remove reaction.", "error");
     } finally {
       setReactionLoadingPostId(null);
     }
@@ -632,57 +709,63 @@ const Home = () => {
     setReactionLoadingPostId(postId);
 
     // Find the current post and create optimistic update
-    const currentPost = state.posts.find(p => p._id === postId);
+    const currentPost = state.posts.find((p) => p._id === postId);
     if (!currentPost) return;
 
     const userId = state.user?._id || state.user?.id;
     const currentReactions = currentPost.reactions || [];
 
     // Optimistically add the reaction
-    const optimisticReactions = [...currentReactions.filter(r => {
-      const rUserId = r.userId?._id || r.userId?.toString();
-      return rUserId !== userId?.toString();
-    }), { emoji: '❤️', userId }];
+    const optimisticReactions = [
+      ...currentReactions.filter((r) => {
+        const rUserId = r.userId?._id || r.userId?.toString();
+        return rUserId !== userId?.toString();
+      }),
+      { emoji: "❤️", userId },
+    ];
 
     // Optimistically update the post in state
     dispatch({
       type: ActionTypes.UPDATE_POST,
-      payload: { ...currentPost, reactions: optimisticReactions }
+      payload: { ...currentPost, reactions: optimisticReactions },
     });
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/posts/${postId}/react`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${config.API_BASE_URL}/posts/${postId}/react`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ emoji: "❤️" }),
         },
-        body: JSON.stringify({ emoji: '❤️' })
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
         // Update with server response
         dispatch({
           type: ActionTypes.UPDATE_POST,
-          payload: { ...currentPost, reactions: data.reactions }
+          payload: { ...currentPost, reactions: data.reactions },
         });
       } else {
         // Revert on error
         dispatch({
           type: ActionTypes.UPDATE_POST,
-          payload: currentPost
+          payload: currentPost,
         });
-        showNotification('Failed to like post.', 'error');
+        showNotification("Failed to like post.", "error");
       }
     } catch (e) {
       // Revert on error
       dispatch({
         type: ActionTypes.UPDATE_POST,
-        payload: currentPost
+        payload: currentPost,
       });
-      showNotification('Failed to like post.', 'error');
+      showNotification("Failed to like post.", "error");
     } finally {
       setReactionLoadingPostId(null);
     }
@@ -692,14 +775,14 @@ const Home = () => {
     setReactionLoadingPostId(postId);
 
     // Find the current post and create optimistic update
-    const currentPost = state.posts.find(p => p._id === postId);
+    const currentPost = state.posts.find((p) => p._id === postId);
     if (!currentPost) return;
 
     const userId = state.user?._id || state.user?.id;
     const currentReactions = currentPost.reactions || [];
 
     // Optimistically remove the reaction
-    const optimisticReactions = currentReactions.filter(r => {
+    const optimisticReactions = currentReactions.filter((r) => {
       const rUserId = r.userId?._id || r.userId?.toString();
       return rUserId !== userId?.toString();
     });
@@ -707,38 +790,41 @@ const Home = () => {
     // Optimistically update the post in state
     dispatch({
       type: ActionTypes.UPDATE_POST,
-      payload: { ...currentPost, reactions: optimisticReactions }
+      payload: { ...currentPost, reactions: optimisticReactions },
     });
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/posts/${postId}/react`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${config.API_BASE_URL}/posts/${postId}/react`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
 
       if (response.ok) {
         const data = await response.json();
         // Update with server response
         dispatch({
           type: ActionTypes.UPDATE_POST,
-          payload: { ...currentPost, reactions: data.reactions }
+          payload: { ...currentPost, reactions: data.reactions },
         });
       } else {
         // Revert on error
         dispatch({
           type: ActionTypes.UPDATE_POST,
-          payload: currentPost
+          payload: currentPost,
         });
-        showNotification('Failed to unlike post.', 'error');
+        showNotification("Failed to unlike post.", "error");
       }
     } catch (e) {
       // Revert on error
       dispatch({
         type: ActionTypes.UPDATE_POST,
-        payload: currentPost
+        payload: currentPost,
       });
-      showNotification('Failed to unlike post.', 'error');
+      showNotification("Failed to unlike post.", "error");
     } finally {
       setReactionLoadingPostId(null);
     }
@@ -759,14 +845,14 @@ const Home = () => {
       <div className="feed-header">
         <div className="feed-tabs">
           <button
-            className={`feed-tab ${activeTab === 'for-you' ? 'active' : ''}`}
-            onClick={() => setActiveTab('for-you')}
+            className={`feed-tab ${activeTab === "for-you" ? "active" : ""}`}
+            onClick={() => setActiveTab("for-you")}
           >
             For you
           </button>
           <button
-            className={`feed-tab ${activeTab === 'following' ? 'active following-active' : ''}`}
-            onClick={() => setActiveTab('following')}
+            className={`feed-tab ${activeTab === "following" ? "active following-active" : ""}`}
+            onClick={() => setActiveTab("following")}
           >
             Following
           </button>
@@ -774,25 +860,39 @@ const Home = () => {
       </div>
 
       {/* Compose Post */}
-      <div className={`compose-post ${isExpanded ? 'expanded' : ''}`}>
+      <div className={`compose-post ${isExpanded ? "expanded" : ""}`}>
         <div className="compose-header">
           <img
-            key={`compose-avatar-${state.user?._id || state.user?.id}-${state.user?.photo || 'default'}-${state.user?._lastUpdate || Date.now()}`}
-            src={state.user?.photo ? `${state.user.photo}${state.user.photo.includes('?') ? '&' : '?'}v=${Date.now()}` : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(state.user?.name || 'User')}
+            key={`compose-avatar-${state.user?._id || state.user?.id}-${state.user?.photo || "default"}-${state.user?._lastUpdate || Date.now()}`}
+            src={
+              state.user?.photo
+                ? `${state.user.photo}${state.user.photo.includes("?") ? "&" : "?"}v=${Date.now()}`
+                : "https://ui-avatars.com/api/?name=" +
+                  encodeURIComponent(state.user?.name || "User")
+            }
             alt="Profile"
             className="compose-profile-pic"
-            onClick={() => navigate(`/profile/${state.user?._id || state.user?.id}`)}
-            style={{ cursor: 'pointer' }}
+            onClick={() =>
+              navigate(`/profile/${state.user?._id || state.user?.id}`)
+            }
+            style={{ cursor: "pointer" }}
             onError={(e) => {
-              console.error('Compose avatar failed to load:', state.user?.photo);
-              e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(state.user?.name || 'User');
+              console.error(
+                "Compose avatar failed to load:",
+                state.user?.photo,
+              );
+              e.target.src =
+                "https://ui-avatars.com/api/?name=" +
+                encodeURIComponent(state.user?.name || "User");
             }}
           />
           <div className="compose-input-container">
             <div className="compose-input-wrapper">
               <textarea
                 className="compose-input"
-                placeholder={showPoll ? "Ask a Question" : "What is happening?!"}
+                placeholder={
+                  showPoll ? "Ask a Question" : "What is happening?!"
+                }
                 value={newPost}
                 onChange={(e) => setNewPost(e.target.value)}
                 onFocus={() => setIsExpanded(true)}
@@ -800,8 +900,8 @@ const Home = () => {
                 maxLength={280}
                 rows={1}
                 style={{
-                  height: isExpanded ? 'auto' : '24px',
-                  minHeight: isExpanded ? '120px' : '24px'
+                  height: isExpanded ? "auto" : "24px",
+                  minHeight: isExpanded ? "120px" : "24px",
                 }}
               />
             </div>
@@ -809,15 +909,21 @@ const Home = () => {
             {/* Media Preview */}
             {selectedMedia.length > 0 && (
               <div className="image-preview-container">
-                <div className={`image-grid ${selectedMedia.length === 1 ? 'single' : selectedMedia.length === 2 ? 'double' : 'multiple'}`}>
+                <div
+                  className={`image-grid ${selectedMedia.length === 1 ? "single" : selectedMedia.length === 2 ? "double" : "multiple"}`}
+                >
                   {selectedMedia.map((media, index) => (
                     <div key={index} className="image-preview">
-                      {media.type.startsWith('video/') ? (
+                      {media.type.startsWith("video/") ? (
                         <video
                           src={URL.createObjectURL(media)}
                           className="preview-image"
                           controls
-                          style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
+                          style={{
+                            width: "100%",
+                            height: "auto",
+                            objectFit: "contain",
+                          }}
                         />
                       ) : (
                         <img
@@ -881,12 +987,16 @@ const Home = () => {
                           type="text"
                           placeholder={`Choice ${index + 1}`}
                           value={option}
-                          onChange={(e) => updatePollOption(index, e.target.value)}
+                          onChange={(e) =>
+                            updatePollOption(index, e.target.value)
+                          }
                           className="poll-input"
                           maxLength={25}
                         />
                         <div className="poll-option-actions">
-                          <span className="poll-char-count">{option.length}/25</span>
+                          <span className="poll-char-count">
+                            {option.length}/25
+                          </span>
                           {pollOptions.length > 2 && (
                             <button
                               className="remove-option-btn"
@@ -918,11 +1028,18 @@ const Home = () => {
                       <div className="duration-selector">
                         <select
                           value={pollDuration.days}
-                          onChange={(e) => setPollDuration(prev => ({ ...prev, days: parseInt(e.target.value) }))}
+                          onChange={(e) =>
+                            setPollDuration((prev) => ({
+                              ...prev,
+                              days: parseInt(e.target.value),
+                            }))
+                          }
                           className="duration-dropdown"
                         >
-                          {[0, 1, 2, 3, 4, 5, 6, 7].map(day => (
-                            <option key={day} value={day}>{day}</option>
+                          {[0, 1, 2, 3, 4, 5, 6, 7].map((day) => (
+                            <option key={day} value={day}>
+                              {day}
+                            </option>
                           ))}
                         </select>
                         <span className="duration-label">Days</span>
@@ -931,11 +1048,21 @@ const Home = () => {
                       <div className="duration-selector">
                         <select
                           value={pollDuration.hours}
-                          onChange={(e) => setPollDuration(prev => ({ ...prev, hours: parseInt(e.target.value) }))}
+                          onChange={(e) =>
+                            setPollDuration((prev) => ({
+                              ...prev,
+                              hours: parseInt(e.target.value),
+                            }))
+                          }
                           className="duration-dropdown"
                         >
-                          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23].map(hour => (
-                            <option key={hour} value={hour}>{hour}</option>
+                          {[
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23,
+                          ].map((hour) => (
+                            <option key={hour} value={hour}>
+                              {hour}
+                            </option>
                           ))}
                         </select>
                         <span className="duration-label">Hours</span>
@@ -944,11 +1071,18 @@ const Home = () => {
                       <div className="duration-selector">
                         <select
                           value={pollDuration.minutes}
-                          onChange={(e) => setPollDuration(prev => ({ ...prev, minutes: parseInt(e.target.value) }))}
+                          onChange={(e) =>
+                            setPollDuration((prev) => ({
+                              ...prev,
+                              minutes: parseInt(e.target.value),
+                            }))
+                          }
                           className="duration-dropdown"
                         >
-                          {[0, 15, 30, 45].map(minute => (
-                            <option key={minute} value={minute}>{minute}</option>
+                          {[0, 15, 30, 45].map((minute) => (
+                            <option key={minute} value={minute}>
+                              {minute}
+                            </option>
                           ))}
                         </select>
                         <span className="duration-label">Minutes</span>
@@ -969,14 +1103,14 @@ const Home = () => {
             )}
 
             <div className="compose-actions">
-              <div className="compose-icons" style={{ position: 'relative' }}>
+              <div className="compose-icons" style={{ position: "relative" }}>
                 <label className="compose-icon" title="Media">
                   <input
                     type="file"
                     accept="image/*,video/*"
                     multiple
                     onChange={handleMediaUpload}
-                    style={{ display: 'none' }}
+                    style={{ display: "none" }}
                     disabled={selectedMedia.length >= 4 || showPoll}
                   />
                   <svg viewBox="0 0 24 24">
@@ -998,7 +1132,7 @@ const Home = () => {
                 <button
                   className="compose-icon"
                   title="Emoji"
-                  onClick={() => setShowComposeEmojiPicker(prev => !prev)}
+                  onClick={() => setShowComposeEmojiPicker((prev) => !prev)}
                 >
                   <svg viewBox="0 0 24 24">
                     <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm-3 7a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm6 0a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM12 18c-2.137 0-3.998-1.157-4.9-2.889-.126-.242.06-.535.332-.535h9.136c.272 0 .458.293.332.535C15.998 16.843 14.137 18 12 18z" />
@@ -1009,24 +1143,24 @@ const Home = () => {
                     className="emoji-picker-popover"
                     ref={emojiPickerRef}
                     style={{
-                      position: isMobile ? 'fixed' : 'absolute',
-                      top: isMobile ? 'auto' : 40,
-                      bottom: isMobile ? 72 : 'auto',
-                      left: isMobile ? '50%' : 0,
-                      transform: isMobile ? 'translateX(-50%)' : 'none',
+                      position: isMobile ? "fixed" : "absolute",
+                      top: isMobile ? "auto" : 40,
+                      bottom: isMobile ? 72 : "auto",
+                      left: isMobile ? "50%" : 0,
+                      transform: isMobile ? "translateX(-50%)" : "none",
                       zIndex: 2000,
-                      background: '#23272c',
-                      padding: '10px 4px 6px 4px',
+                      background: "#23272c",
+                      padding: "10px 4px 6px 4px",
                       borderRadius: 16,
-                      border: '1.5px solid #444',
-                      boxShadow: '0 12px 32px rgba(0,0,0,0.35)',
-                      minWidth: isMobile ? 'min(94vw, 360px)' : 340,
-                      maxWidth: isMobile ? 'min(96vw, 420px)' : 420,
-                      width: 'auto',
-                      minHeight: isMobile ? '50vh' : 300,
-                      maxHeight: isMobile ? '70vh' : 420,
-                      overflow: 'auto',
-                      transition: 'all 0.18s cubic-bezier(.39,1.65,.53,1)'
+                      border: "1.5px solid #444",
+                      boxShadow: "0 12px 32px rgba(0,0,0,0.35)",
+                      minWidth: isMobile ? "min(94vw, 360px)" : 340,
+                      maxWidth: isMobile ? "min(96vw, 420px)" : 420,
+                      width: "auto",
+                      minHeight: isMobile ? "50vh" : 300,
+                      maxHeight: isMobile ? "70vh" : 420,
+                      overflow: "auto",
+                      transition: "all 0.18s cubic-bezier(.39,1.65,.53,1)",
                     }}
                   >
                     <Picker
@@ -1043,7 +1177,7 @@ const Home = () => {
                 )}
 
                 <button
-                  className={`compose-icon ${showPoll ? 'active' : ''}`}
+                  className={`compose-icon ${showPoll ? "active" : ""}`}
                   onClick={togglePoll}
                   disabled={selectedMedia.length > 0 || selectedGif}
                   title="Poll"
@@ -1101,7 +1235,10 @@ const Home = () => {
                         />
                       </svg>
                       {getCharacterCount() > 260 && (
-                        <span className="character-count" style={{ color: getCharacterCountColor() }}>
+                        <span
+                          className="character-count"
+                          style={{ color: getCharacterCountColor() }}
+                        >
                           {280 - getCharacterCount()}
                         </span>
                       )}
@@ -1109,7 +1246,7 @@ const Home = () => {
                   )}
 
                   <button
-                    className={`compose-post-btn ${canPost() ? 'active' : ''}`}
+                    className={`compose-post-btn ${canPost() ? "active" : ""}`}
                     onClick={handlePost}
                     disabled={!canPost()}
                   >
@@ -1118,7 +1255,9 @@ const Home = () => {
                         <div className="posting-spinner"></div>
                         Posting
                       </>
-                    ) : 'Post'}
+                    ) : (
+                      "Post"
+                    )}
                   </button>
                 </div>
               </div>
@@ -1132,27 +1271,34 @@ const Home = () => {
         {(() => {
           // Filter posts based on active tab
           let filteredPosts = state.posts;
-          const currentUserId = state.user?._id?.toString() || state.user?.id?.toString();
+          const currentUserId =
+            state.user?._id?.toString() || state.user?.id?.toString();
 
-          if (activeTab === 'following') {
+          if (activeTab === "following") {
             // Only show posts from users you follow, plus your own posts
-            filteredPosts = state.posts.filter(post => {
-              const postAuthorId = post.author?._id?.toString() || post.author?.id?.toString();
+            filteredPosts = state.posts.filter((post) => {
+              const postAuthorId =
+                post.author?._id?.toString() || post.author?.id?.toString();
               // Include own posts and posts from followed users
-              return postAuthorId === currentUserId || followingList.includes(postAuthorId);
+              return (
+                postAuthorId === currentUserId ||
+                followingList.includes(postAuthorId)
+              );
             });
           }
           // For 'for-you' tab, show all posts (no filtering)
 
           if (filteredPosts.length === 0) {
-            if (activeTab === 'following') {
+            if (activeTab === "following") {
               return (
                 <div className="no-posts">
                   <svg className="no-posts-icon" viewBox="0 0 24 24">
                     <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10H6v10H4zm9.248 0v-7h2v7h-2z" />
                   </svg>
                   <h3>No posts yet</h3>
-                  <p>When people you follow post, their posts will show up here.</p>
+                  <p>
+                    When people you follow post, their posts will show up here.
+                  </p>
                 </div>
               );
             }
@@ -1162,14 +1308,22 @@ const Home = () => {
                   <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10H6v10H4zm9.248 0v-7h2v7h-2z" />
                 </svg>
                 <h3>Welcome to X!</h3>
-                <p>This is the best place to see what's happening in your world. Find some people and topics to follow now.</p>
+                <p>
+                  This is the best place to see what's happening in your world.
+                  Find some people and topics to follow now.
+                </p>
               </div>
             );
           }
 
           return filteredPosts.map((post) => {
-            const isOwnPost = (post.author?.email && state.user?.email && post.author.email === state.user.email) ||
-              (post.author?._id && state.user?._id && post.author._id === state.user._id);
+            const isOwnPost =
+              (post.author?.email &&
+                state.user?.email &&
+                post.author.email === state.user.email) ||
+              (post.author?._id &&
+                state.user?._id &&
+                post.author._id === state.user._id);
             return (
               <article
                 key={post._id}
@@ -1178,25 +1332,44 @@ const Home = () => {
                   setSelectedPostForDetail(post);
                   setShowPostDetailModal(true);
                 }}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
               >
                 <div className="post-header">
                   <img
-                    key={`post-avatar-${post._id}-${post.author?._id || post.author?.id}-${post.author?.photo || 'default'}`}
-                    src={post.author?.photo ? `${post.author.photo}${post.author.photo.includes('?') ? '&' : '?'}t=${Date.now()}` : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(post.author?.name || 'User')}
+                    key={`post-avatar-${post._id}-${post.author?._id || post.author?.id}-${post.author?.photo || "default"}`}
+                    src={
+                      post.author?.photo
+                        ? `${post.author.photo}${post.author.photo.includes("?") ? "&" : "?"}t=${Date.now()}`
+                        : "https://ui-avatars.com/api/?name=" +
+                          encodeURIComponent(post.author?.name || "User")
+                    }
                     alt="Profile"
                     className="post-profile-pic"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/profile/${post.author?._id || post.author?.id}`);
+                      navigate(
+                        `/profile/${post.author?._id || post.author?.id}`,
+                      );
                     }}
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: "pointer" }}
                     onError={(e) => {
-                      console.error('Post avatar failed to load:', post.author?.photo, 'for post:', post._id);
-                      e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(post.author?.name || 'User');
+                      console.error(
+                        "Post avatar failed to load:",
+                        post.author?.photo,
+                        "for post:",
+                        post._id,
+                      );
+                      e.target.src =
+                        "https://ui-avatars.com/api/?name=" +
+                        encodeURIComponent(post.author?.name || "User");
                     }}
                     onLoad={() => {
-                      console.log('Post avatar loaded successfully:', post.author?.photo, 'for post:', post._id);
+                      console.log(
+                        "Post avatar loaded successfully:",
+                        post.author?.photo,
+                        "for post:",
+                        post._id,
+                      );
                     }}
                   />
                   <div className="post-user-info">
@@ -1204,14 +1377,22 @@ const Home = () => {
                       className="post-user-name"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/profile/${post.author?._id || post.author?.id}`);
+                        navigate(
+                          `/profile/${post.author?._id || post.author?.id}`,
+                        );
                       }}
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: "pointer" }}
                     >
-                      {post.author?.name || 'User'}
+                      {post.author?.name || "User"}
                     </span>
-                    <span className="post-user-handle"> @{post.author?.email?.split('@')[0] || 'user'}</span>
-                    <span className="post-timestamp"> · {formatTimeAgo(post.createdAt)}</span>
+                    <span className="post-user-handle">
+                      {" "}
+                      @{post.author?.email?.split("@")[0] || "user"}
+                    </span>
+                    <span className="post-timestamp">
+                      {" "}
+                      · {formatTimeAgo(post.createdAt)}
+                    </span>
                   </div>
                   {isOwnPost && (
                     <div className="post-more">
@@ -1223,22 +1404,41 @@ const Home = () => {
                           togglePostMenu(post._id);
                         }}
                       >
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="18"
+                          height="18"
+                          fill="currentColor"
+                        >
                           <circle cx="5" cy="12" r="2"></circle>
                           <circle cx="12" cy="12" r="2"></circle>
                           <circle cx="19" cy="12" r="2"></circle>
                         </svg>
                       </button>
                       {openMenuPostId === post._id && (
-                        <div className="post-menu" role="menu" onClick={(e) => e.stopPropagation()}>
-                          <button className="post-menu-item" onClick={(e) => {
-                            e.stopPropagation();
-                            startEditPost(post);
-                          }}>Edit</button>
-                          <button className="post-menu-item danger" onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeletePost(post._id);
-                          }}>Delete</button>
+                        <div
+                          className="post-menu"
+                          role="menu"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            className="post-menu-item"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startEditPost(post);
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="post-menu-item danger"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeletePost(post._id);
+                            }}
+                          >
+                            Delete
+                          </button>
                         </div>
                       )}
                     </div>
@@ -1247,54 +1447,66 @@ const Home = () => {
                 {/* Show 'Replying to' if this post is a reply */}
                 {post.parentAuthor && (
                   <div className="replying-to-label">
-                    Replying to<span className="replying-to-email"> {post.parentAuthor.email}</span>
+                    Replying to
+                    <span className="replying-to-email">
+                      {" "}
+                      {post.parentAuthor.email}
+                    </span>
                   </div>
                 )}
                 {/* Only show post content if there's no poll */}
-                {!post.poll && <div className="post-content">{post.content}</div>}
+                {!post.poll && (
+                  <div className="post-content">{post.content}</div>
+                )}
 
                 {/* Post Media */}
-                {((post.images && post.images.length > 0) || (post.media && post.media.length > 0)) && (
+                {((post.images && post.images.length > 0) ||
+                  (post.media && post.media.length > 0)) && (
                   <div className="post-images">
-                    <div className={`post-image-grid ${(post.media?.length || post.images?.length || 0) === 1 ? 'single' : (post.media?.length || post.images?.length || 0) === 2 ? 'double' : 'multiple'}`}>
+                    <div
+                      className={`post-image-grid ${(post.media?.length || post.images?.length || 0) === 1 ? "single" : (post.media?.length || post.images?.length || 0) === 2 ? "double" : "multiple"}`}
+                    >
                       {/* Display new media format */}
-                      {post.media && post.media.map((mediaItem, index) => (
-                        <div key={index} className="post-image-container">
-                          {mediaItem.type === 'video' ? (
-                            <video
-                              src={mediaItem.url}
-                              className="post-image"
-                              controls
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                              }}
-                            />
-                          ) : (
-                            <img
-                              src={mediaItem.url}
-                              alt={`Post media ${index + 1}`}
-                              className="post-image"
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                              }}
-                            />
-                          )}
-                        </div>
-                      ))}
+                      {post.media &&
+                        post.media.map((mediaItem, index) => (
+                          <div key={index} className="post-image-container">
+                            {mediaItem.type === "video" ? (
+                              <video
+                                src={mediaItem.url}
+                                className="post-image"
+                                controls
+                                onError={(e) => {
+                                  e.target.style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              <img
+                                src={mediaItem.url}
+                                alt={`Post media ${index + 1}`}
+                                className="post-image"
+                                onError={(e) => {
+                                  e.target.style.display = "none";
+                                }}
+                              />
+                            )}
+                          </div>
+                        ))}
                       {/* Fallback to old images format for backward compatibility */}
-                      {(!post.media || post.media.length === 0) && post.images && post.images.map((image, index) => (
-                        <div key={index} className="post-image-container">
-                          <img
-                            src={image}
-                            alt={`Post image ${index + 1}`}
-                            className="post-image"
-                            onError={(e) => {
-                              console.error('Failed to load image:', image);
-                              e.target.style.display = 'none';
-                            }}
-                          />
-                        </div>
-                      ))}
+                      {(!post.media || post.media.length === 0) &&
+                        post.images &&
+                        post.images.map((image, index) => (
+                          <div key={index} className="post-image-container">
+                            <img
+                              src={image}
+                              alt={`Post image ${index + 1}`}
+                              className="post-image"
+                              onError={(e) => {
+                                console.error("Failed to load image:", image);
+                                e.target.style.display = "none";
+                              }}
+                            />
+                          </div>
+                        ))}
                     </div>
                   </div>
                 )}
@@ -1304,10 +1516,10 @@ const Home = () => {
                   <div className="post-gif">
                     <img
                       src={post.gif.url}
-                      alt={post.gif.title || 'GIF'}
+                      alt={post.gif.title || "GIF"}
                       className="post-gif-image"
                       onError={(e) => {
-                        e.target.style.display = 'none';
+                        e.target.style.display = "none";
                       }}
                     />
                   </div>
@@ -1321,27 +1533,33 @@ const Home = () => {
                       currentUserId={state.user?._id}
                       onVote={async (pollId, choiceIndex) => {
                         try {
-                          const token = localStorage.getItem('token');
-                          const response = await fetch(`http://localhost:5000/api/polls/${pollId}/vote`, {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                              'Authorization': `Bearer ${token}`
+                          const token = localStorage.getItem("token");
+                          const response = await fetch(
+                            `${config.API_BASE_URL}/polls/${pollId}/vote`,
+                            {
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`,
+                              },
+                              body: JSON.stringify({ choiceIndex }),
                             },
-                            body: JSON.stringify({ choiceIndex })
-                          });
+                          );
 
                           if (response.ok) {
                             // Refresh posts to show updated poll results
                             fetchPosts();
-                            showNotification('Vote recorded!', 'success');
+                            showNotification("Vote recorded!", "success");
                           } else {
                             const errorData = await response.json();
-                            showNotification(errorData.error || 'Failed to vote', 'error');
+                            showNotification(
+                              errorData.error || "Failed to vote",
+                              "error",
+                            );
                           }
                         } catch (error) {
-                          console.error('Error voting:', error);
-                          showNotification('Failed to vote', 'error');
+                          console.error("Error voting:", error);
+                          showNotification("Failed to vote", "error");
                         }
                       }}
                     />
@@ -1411,10 +1629,7 @@ const Home = () => {
 
       {/* Jitsi Meeting */}
       {currentSpace && (
-        <JitsiMeeting
-          spaceData={currentSpace}
-          onClose={handleCloseSpace}
-        />
+        <JitsiMeeting spaceData={currentSpace} onClose={handleCloseSpace} />
       )}
 
       {/* GIF Picker Modal */}
@@ -1426,28 +1641,44 @@ const Home = () => {
 
       {/* Edit Modal */}
       {editingPost && (
-        <div className="edit-modal-overlay" onClick={() => setEditingPost(null)}>
+        <div
+          className="edit-modal-overlay"
+          onClick={() => setEditingPost(null)}
+        >
           <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
             <div className="edit-modal-header">
               <div className="edit-modal-title">Edit post</div>
-              <button className="post-more-btn" onClick={() => setEditingPost(null)}>×</button>
+              <button
+                className="post-more-btn"
+                onClick={() => setEditingPost(null)}
+              >
+                ×
+              </button>
             </div>
             <div className="edit-modal-body">
-              <textarea className="edit-input" value={editText} onChange={(e) => setEditText(e.target.value)} maxLength={280} />
+              <textarea
+                className="edit-input"
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                maxLength={280}
+              />
 
               {/* Existing media with remove toggles */}
-              {(editingPost.media && editingPost.media.length > 0) && (
+              {editingPost.media && editingPost.media.length > 0 && (
                 <div className="edit-media-section">
                   <div className="edit-media-grid">
                     {editingPost.media.map((m, idx) => (
                       <div key={idx} className="edit-media-item">
-                        {m.type === 'video' ? (
+                        {m.type === "video" ? (
                           <video src={m.url} muted />
                         ) : (
                           <img src={m.url} alt="media" />
                         )}
-                        <button className="edit-remove-btn" onClick={() => toggleRemoveMediaKey(m.key)}>
-                          {editRemoveKeys.includes(m.key) ? 'Undo' : 'Remove'}
+                        <button
+                          className="edit-remove-btn"
+                          onClick={() => toggleRemoveMediaKey(m.key)}
+                        >
+                          {editRemoveKeys.includes(m.key) ? "Undo" : "Remove"}
                         </button>
                       </div>
                     ))}
@@ -1459,36 +1690,88 @@ const Home = () => {
               <div className="edit-controls">
                 <label className="btn btn-secondary edit-file-input">
                   Add image/video
-                  <input type="file" accept="image/*,video/*" multiple onChange={onEditFilesSelected} style={{ display: 'none' }} />
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={onEditFilesSelected}
+                    style={{ display: "none" }}
+                  />
                 </label>
-                {editNewFiles.length > 0 && <span style={{ color: '#71767b' }}>{editNewFiles.length} new file(s) selected</span>}
+                {editNewFiles.length > 0 && (
+                  <span style={{ color: "#71767b" }}>
+                    {editNewFiles.length} new file(s) selected
+                  </span>
+                )}
               </div>
 
               {/* GIF controls */}
               <div className="edit-gif-row">
-                <div style={{ color: '#e7e9ea', fontWeight: 600 }}>GIF</div>
+                <div style={{ color: "#e7e9ea", fontWeight: 600 }}>GIF</div>
                 <div>
-                  {(!editRemoveGif && editingPost.gif) && (
+                  {!editRemoveGif && editingPost.gif && (
                     <>
-                      <img src={editingPost.gif.url} alt="gif" className="edit-gif-thumb" />
-                      <button className="btn btn-secondary" style={{ marginLeft: 8 }} onClick={() => setEditRemoveGif(true)}>Remove GIF</button>
+                      <img
+                        src={editingPost.gif.url}
+                        alt="gif"
+                        className="edit-gif-thumb"
+                      />
+                      <button
+                        className="btn btn-secondary"
+                        style={{ marginLeft: 8 }}
+                        onClick={() => setEditRemoveGif(true)}
+                      >
+                        Remove GIF
+                      </button>
                     </>
                   )}
                   {!editingPost.gif && !editNewGif && (
-                    <button className="btn btn-secondary" onClick={() => setShowGifPicker(true)}>Add GIF</button>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => setShowGifPicker(true)}
+                    >
+                      Add GIF
+                    </button>
                   )}
                   {editNewGif && (
                     <>
-                      <img src={editNewGif.images.original.url} alt="gif" className="edit-gif-thumb" />
-                      <button className="btn btn-secondary" style={{ marginLeft: 8 }} onClick={() => setEditNewGif(null)}>Clear</button>
+                      <img
+                        src={editNewGif.images.original.url}
+                        alt="gif"
+                        className="edit-gif-thumb"
+                      />
+                      <button
+                        className="btn btn-secondary"
+                        style={{ marginLeft: 8 }}
+                        onClick={() => setEditNewGif(null)}
+                      >
+                        Clear
+                      </button>
                     </>
                   )}
                 </div>
               </div>
             </div>
             <div className="edit-modal-footer">
-              <button className="btn btn-secondary" onClick={() => setEditingPost(null)}>Cancel</button>
-              <button className="btn btn-primary" onClick={submitEditPost} disabled={editText.trim().length === 0 && editRemoveKeys.length === 0 && editNewFiles.length === 0 && !editRemoveGif && !editNewGif}>Save</button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setEditingPost(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={submitEditPost}
+                disabled={
+                  editText.trim().length === 0 &&
+                  editRemoveKeys.length === 0 &&
+                  editNewFiles.length === 0 &&
+                  !editRemoveGif &&
+                  !editNewGif
+                }
+              >
+                Save
+              </button>
             </div>
           </div>
         </div>
@@ -1509,7 +1792,12 @@ const Home = () => {
           setShowPostDetailModal(false);
           setSelectedPostForDetail(null);
         }}
-        post={selectedPostForDetail ? state.posts.find(p => p._id === selectedPostForDetail._id) || selectedPostForDetail : null}
+        post={
+          selectedPostForDetail
+            ? state.posts.find((p) => p._id === selectedPostForDetail._id) ||
+              selectedPostForDetail
+            : null
+        }
       />
 
       {/* Share Modal */}

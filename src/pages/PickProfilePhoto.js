@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import ImageEditor from '../components/ImageEditor';
-import { useApp } from '../context/AppContext';
-import { ActionTypes } from '../context/AppContext';
-import '../login.css';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import ImageEditor from "../components/ImageEditor";
+import { useApp } from "../context/AppContext";
+import { ActionTypes } from "../context/AppContext";
+import "../login.css";
+import config from "../config.js";
 
-const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
 function PickProfilePhoto() {
@@ -19,12 +20,12 @@ function PickProfilePhoto() {
   const [showEditor, setShowEditor] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
-  const returnTo = location.state?.returnTo || '/dashboard';
+  const returnTo = location.state?.returnTo || "/dashboard";
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [navigate]);
 
@@ -34,11 +35,11 @@ function PickProfilePhoto() {
 
   const validateFile = (file) => {
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      showNotification('Please choose a JPG, PNG, or WEBP image.', 'error');
+      showNotification("Please choose a JPG, PNG, or WEBP image.", "error");
       return false;
     }
     if (file.size > MAX_SIZE_BYTES) {
-      showNotification('Image must be smaller than 5MB.', 'error');
+      showNotification("Image must be smaller than 5MB.", "error");
       return false;
     }
     return true;
@@ -111,45 +112,50 @@ function PickProfilePhoto() {
 
     try {
       const formData = new FormData();
-      const fallbackName = selectedFile.name || 'avatar.jpg';
-      formData.append('profilePhoto', selectedFile, fallbackName);
+      const fallbackName = selectedFile.name || "avatar.jpg";
+      formData.append("profilePhoto", selectedFile, fallbackName);
 
-      const response = await fetch('http://localhost:5000/api/auth/upload-profile-photo', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      const response = await fetch(
+        `${config.API_BASE_URL}/auth/upload-profile-photo`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: formData,
         },
-        body: formData
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to upload profile photo');
+        throw new Error(errorData.error || "Failed to upload profile photo");
       }
 
       const data = await response.json();
-      console.log('Profile photo upload response:', data);
-      console.log('Photo URL from server:', data.photoUrl);
-      
+      console.log("Profile photo upload response:", data);
+      console.log("Photo URL from server:", data.photoUrl);
+
       // Use the photoUrl directly from server
       const photoUrl = data.photoUrl;
       const updatedUser = { ...state.user, photo: photoUrl };
       dispatch({ type: ActionTypes.SET_USER, payload: updatedUser });
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
       // Dispatch custom event to refresh posts in other components
       const userId = state.user?._id || state.user?.id;
       if (userId) {
-        window.dispatchEvent(new CustomEvent('profilePhotoUpdated', { 
-          detail: { userId, photoUrl: photoUrl } 
-        }));
+        window.dispatchEvent(
+          new CustomEvent("profilePhotoUpdated", {
+            detail: { userId, photoUrl: photoUrl },
+          }),
+        );
       }
-      
-      showNotification('Profile photo updated', 'success');
+
+      showNotification("Profile photo updated", "success");
       navigate(returnTo);
     } catch (error) {
-      console.error('Upload error:', error);
-      showNotification(error.message || 'Failed to upload photo', 'error');
+      console.error("Upload error:", error);
+      showNotification(error.message || "Failed to upload photo", "error");
     } finally {
       setLoading(false);
     }
@@ -167,61 +173,75 @@ function PickProfilePhoto() {
 
   return (
     <div className="login-overlay">
-      <div className="login-modal" style={{ maxHeight: '620px', minHeight: '520px' }}>
+      <div
+        className="login-modal"
+        style={{ maxHeight: "620px", minHeight: "520px" }}
+      >
         <div className="login-logo">X</div>
-        <h2 className="login-title" style={{ textAlign: 'left', marginBottom: '8px' }}>
+        <h2
+          className="login-title"
+          style={{ textAlign: "left", marginBottom: "8px" }}
+        >
           Pick a profile picture
         </h2>
-        <p style={{ 
-          color: '#71767b', 
-          fontSize: '16px', 
-          marginBottom: '24px',
-          textAlign: 'left'
-        }}>
+        <p
+          style={{
+            color: "#71767b",
+            fontSize: "16px",
+            marginBottom: "24px",
+            textAlign: "left",
+          }}
+        >
           Upload, crop, and reposition your new look—just like on Twitter.
         </p>
 
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: '16px',
-          marginBottom: '24px'
-        }}>
-          <div style={{
-            width: '120px',
-            height: '120px',
-            borderRadius: '50%',
-            border: '2px solid #333',
-            backgroundColor: '#1a1a1a',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-            overflow: 'hidden',
-            margin: '0 auto'
-          }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "16px",
+            marginBottom: "24px",
+          }}
+        >
+          <div
+            style={{
+              width: "120px",
+              height: "120px",
+              borderRadius: "50%",
+              border: "2px solid #333",
+              backgroundColor: "#1a1a1a",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
+              overflow: "hidden",
+              margin: "0 auto",
+            }}
+          >
             {preview ? (
-              <img 
-                src={preview} 
-                alt="Profile preview" 
+              <img
+                src={preview}
+                alt="Profile preview"
                 style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
                 }}
               />
             ) : (
-              <div style={{
-                width: '60px',
-                height: '60px',
-                backgroundColor: '#333',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '24px',
-                color: '#71767b'
-              }}>
+              <div
+                style={{
+                  width: "60px",
+                  height: "60px",
+                  backgroundColor: "#333",
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "24px",
+                  color: "#71767b",
+                }}
+              >
                 👤
               </div>
             )}
@@ -232,44 +252,46 @@ function PickProfilePhoto() {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             style={{
-              border: `2px dashed ${dragActive ? '#1d9bf0' : '#333'}`,
-              borderRadius: '12px',
-              padding: '24px',
-              textAlign: 'center',
-              backgroundColor: dragActive ? 'rgba(29, 155, 240, 0.1)' : '#111',
-              transition: 'background-color 0.2s, border-color 0.2s'
+              border: `2px dashed ${dragActive ? "#1d9bf0" : "#333"}`,
+              borderRadius: "12px",
+              padding: "24px",
+              textAlign: "center",
+              backgroundColor: dragActive ? "rgba(29, 155, 240, 0.1)" : "#111",
+              transition: "background-color 0.2s, border-color 0.2s",
             }}
           >
             <input
               type="file"
               accept="image/*"
               onChange={handleFileSelect}
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
               id="profile-photo-input"
             />
-            <label 
+            <label
               htmlFor="profile-photo-input"
               style={{
-                color: '#1da1f2',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: '600'
+                color: "#1da1f2",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontWeight: "600",
               }}
             >
               Upload photo
             </label>
-            <p style={{ color: '#71767b', fontSize: '14px', marginTop: '8px' }}>
+            <p style={{ color: "#71767b", fontSize: "14px", marginTop: "8px" }}>
               or drag & drop (JPG, PNG, WEBP — up to 5 MB)
             </p>
           </div>
         </div>
 
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          gap: '12px',
-          marginBottom: '12px'
-        }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "12px",
+            marginBottom: "12px",
+          }}
+        >
           <button
             className="login-btn secondary"
             onClick={handleRemovePhoto}
@@ -284,7 +306,7 @@ function PickProfilePhoto() {
             disabled={loading || !selectedFile}
             style={{ flex: 1 }}
           >
-            {loading ? 'Saving...' : 'Apply'}
+            {loading ? "Saving..." : "Apply"}
           </button>
         </div>
 
@@ -292,9 +314,9 @@ function PickProfilePhoto() {
           className="login-btn forgot"
           onClick={handleSkip}
           disabled={loading}
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
         >
-          {loading ? 'Please wait...' : 'Maybe later'}
+          {loading ? "Please wait..." : "Maybe later"}
         </button>
       </div>
     </div>

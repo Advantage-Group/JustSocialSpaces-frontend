@@ -1,0 +1,277 @@
+.explore-page {
+  min-height: 100vh;
+  background-color: #000;
+  color: #fff;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.explore-header {
+  padding: 20px 0;
+  border-bottom: 1px solid #2f3336;
+  margin-bottom: 20px;
+}
+
+.explore-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.explore-header p {
+  color: #71767a;
+  font-size: 14px;
+  margin: 0;
+}
+
+.explore-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #71767a;
+}
+
+.no-posts {
+  text-align: center;
+  padding: 60px 20px;
+  color: #71767a;
+}
+
+.no-posts h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.post-card {
+  padding: 12px 16px;
+  border-bottom: 1px solid #2f3336;
+  transition: background-color 0.2s;
+}
+
+.post-card:hover {
+  background-color: #080808;
+}
+
+.post-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.post-profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.post-user-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.post-user-name {
+  font-weight: 700;
+  color: #fff;
+}
+
+.post-user-handle,
+.post-timestamp {
+  color: #71767a;
+  font-size: 15px;
+}
+
+.replying-to-label {
+  color: #71767a;
+  font-size: 14px;
+  margin-bottom: 8px;
+  padding-left: 52px;
+}
+
+.replying-to-email {
+  color: #1d9bf0;
+}
+
+.post-content {
+  color: #e7e9ea;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  word-wrap: break-word;
+}
+
+.post-images {
+  display: grid;
+  gap: 2px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.post-images.grid-1 img {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+}
+
+.post-images.grid-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.post-images.grid-2 img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+.post-images.grid-3 {
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.post-images.grid-3 img:first-child {
+  grid-row: 1 / 3;
+  height: 100%;
+}
+
+.post-images.grid-3 img:not(:first-child) {
+  height: 125px;
+}
+
+.post-images.grid-4 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.post-images.grid-4 img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+.post-gif {
+  margin-bottom: 12px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.post-gif-image {
+  width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+}
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  max-width: 425px;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #71767a;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.action-button:hover {
+  background-color: rgba(29, 155, 240, 0.1);
+  color: #1d9bf0;
+}
+
+.action-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  margin-top: 20px;
+  border-top: 1px solid #2f3336;
+}
+
+.pagination-btn {
+  padding: 8px 16px;
+  background-color: #fff;
+  color: #000;
+  border: none;
+  border-radius: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #e7e9ea;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  color: #71767a;
+  font-size: 14px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .explore-page {
+    padding-bottom: 70px; /* Space for bottom navigation bar */
+  }  .post-actions {
+    justify-content: space-around;
+    max-width: 100%;
+    gap: 0;
+  }  .action-button {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 4px;
+    justify-content: center;
+    font-size: 12px;
+  }  .action-button svg {
+    width: 16px;
+    height: 16px;
+  }
+}@media (max-width: 480px) {
+  .explore-page {
+    padding-bottom: 65px; /* Space for bottom navigation bar on small screens */
+  }  .post-actions {
+    gap: 0;
+  }  .action-button {
+    padding: 5px 2px;
+    font-size: 11px;
+  }  .action-button svg {
+    width: 15px;
+    height: 15px;
+  }
+}
