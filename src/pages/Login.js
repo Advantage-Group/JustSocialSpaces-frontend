@@ -72,7 +72,7 @@ function Login() {
           {/* Social login section */}
           <div className="social-login-section">
             <a
-              href={`${config.API_BASE_URL}/auth/google`}
+              href={`${config.AUTH_BASE_URL}/auth/google`}
               style={{ textDecoration: "none", width: "100%" }}
             >
               <button className="login-btn google" type="button">

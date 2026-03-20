@@ -1,12 +1,11 @@
 import React from "react";
 import "./AppleLoginButton.css";
 
-const REACT_APP_BASE_URL =
-  process.env.REACT_APP_BASE_URL || "http://localhost:5000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
 const AppleLoginButton = () => {
   const handleAppleLogin = () => {
-    window.location.href = `${REACT_APP_BASE_URL}/auth/apple`;
+    window.location.href = `${BACKEND_URL}/auth/apple`;
   };
 
   return (

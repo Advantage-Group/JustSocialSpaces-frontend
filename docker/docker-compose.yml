@@ -1,12 +1,28 @@
 services:
   frontend:
+    container_name: justsocial-frontend
     build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: twitterspaces-frontend
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        VITE_BACKEND_URL: http://localhost:3000
+        VITE_BASE_URL: http://localhost:5000
+        VITE_GIPHY_API_KEY: 6c0kkcBcVi6uBQeuxd6kv0euqOsdquBo
+        VITE_JITSI_DOMAIN: jitsi.spaces.justsocial.chat
     ports:
-      - "3000:80" # host:container
-    environment:
-      - NODE_ENV=production
+      - "8080:80"
     restart: unless-stopped
-
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1/",
+        ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./SignupForm.css";
-import config from "../config.js";
+import config from "../../config.js";
 
 const months = [
   "Month",

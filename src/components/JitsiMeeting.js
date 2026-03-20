@@ -124,7 +124,7 @@ const JitsiMeeting = ({ spaceData, onClose }) => {
           roomName: freshSpaceData.jitsiRoomName,
           domain:
             freshSpaceData.jitsiDomain ||
-            process.env.REACT_APP_JITSI_DOMAIN ||
+            import.meta.env.VITE_JITSI_DOMAIN ||
             "meet.jit.si",
           userId: state.user?.id,
           userName: state.user?.name,
@@ -200,7 +200,7 @@ const JitsiMeeting = ({ spaceData, onClose }) => {
       return; // Script already exists
     }
 
-    const envDomain = process.env.REACT_APP_JITSI_DOMAIN;
+    const envDomain = import.meta.env.VITE_JITSI_DOMAIN;
     const preferredDomain =
       envDomain || spaceData?.jitsiDomain || "meet.jit.si";
 
@@ -294,7 +294,7 @@ const JitsiMeeting = ({ spaceData, onClose }) => {
       }
 
       // CRITICAL: Use exact domain from database or env, ensure consistency
-      const envDomain = process.env.REACT_APP_JITSI_DOMAIN;
+      const envDomain = import.meta.env.VITE_JITSI_DOMAIN;
       const spaceDomain = currentSpaceData?.jitsiDomain;
 
       // Priority: env variable > space data > default
