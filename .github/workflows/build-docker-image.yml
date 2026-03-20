@@ -39,13 +39,6 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Check if build args are set correctly, else terminate the build
-        run: |
-          if [ -z "$VITE_BACKEND_URL" ] || [ -z "$VITE_BASE_URL" ] || [ -z "$VITE_GIPHY_API_KEY" ] || [ -z "$VITE_JITSI_DOMAIN" ]; then
-            echo "One or more required build arguments are missing. Terminating the build."
-            exit 1
-          fi
-
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@v6
